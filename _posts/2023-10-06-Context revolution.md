@@ -1,4 +1,3 @@
-
 ---
 title: The situational context revolution in emotion recognition
 date: 2023-10-06 14:41:25 -0300
