@@ -20,7 +20,7 @@ timezone: America/Recife
 
 title: Behavioral Bytes # the main title
 
-tagline: A byte-sized easily digestible insights into human behavior recognition # it will display as the sub-title
+tagline: Byte-sized easily digestible insights into human behavior recognition # it will display as the sub-title
 
 description: >- # used by seo meta and the atom feed
   A minimal, responsive and feature-rich Jekyll theme for technical writing.
