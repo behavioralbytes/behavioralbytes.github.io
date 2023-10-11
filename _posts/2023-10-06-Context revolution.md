@@ -9,11 +9,11 @@ It is not new to anyone how facial expression recognition is a powerful tool to 
 
   
 
-The year 2017 was an important year for the emotion recognition "community": with the availability of EMOTIC [kosti2017emotic], a dataset for emotion recognition that has a significant appeal to context-aware emotion perception, we saw emotion recognition taking shape as a task, and distancing themselves from their old "parent", facial expression recognition. After that, many other scientists started researching how context could help emotion recognition from a computer vision perspective, and most current techniques focus on processing these cues to improve accuracy. In this post, we will take a byte on the topic of situational context, both from a cognitive science point of view as from computer science.
+The year 2017 was an important year for the emotion recognition "community": with the availability of EMOTIC **[kosti2017emotic]**, a dataset for emotion recognition that has a significant appeal to context-aware emotion perception, we saw emotion recognition taking shape as a task, and distancing themselves from their old "parent", facial expression recognition. After that, many other scientists started researching how context could help emotion recognition from a computer vision perspective, and most current techniques focus on processing these cues to improve accuracy. In this post, we will take a byte on the topic of situational context, both from a cognitive science point of view as from computer science.
 
   
 
-Dr. Lisa Barrett's work, as corroborated by many other scientists, states that there is a consistency in how context affects emotion perception, specifically how a judge encodes facial expressions. This assumption was validated in the past decade by using fMRI (an imaging technique that is used to map brain activity by detecting changes in blood flow and oxygenation) in an experiment by Mobbs et al. (2006) [mobbs2006kuleshov], in which given identical faces across different contextual backgrounds, perceivers would judge these faces with different emotional features based on the contextual framing. Righart and de Gelder (2008) [righart2008rapid] extend these experiments to understand when the context is encoded when processing emotional information by using event-related potentials (ERPs). ERPs are a tool in the neuroscience field that studies the brain's electrical activity for specific stimuli. Two ERPs are especially relevant in this scenario: the N170, which is a component related to face encoding and happens ~170 ms after the stimuli, and the P1, which is also related to facial processing and happens at around 100 ms after the stimuli. Therefore, how do these two components are affected by emotional contexts? The study shows that different amplitude levels for these ERPs were recorded based on the added emotional context but also that different emotions have faster reaction times.
+Dr. Lisa Barrett's work, as corroborated by many other scientists, states that there is a consistency in how context affects emotion perception, specifically how a judge encodes facial expressions. This assumption was validated in the past decade by using fMRI (an imaging technique that is used to map brain activity by detecting changes in blood flow and oxygenation) in an experiment by Mobbs et al. (2006) **[mobbs2006kuleshov]**, in which given identical faces across different contextual backgrounds, perceivers would judge these faces with different emotional features based on the contextual framing. Righart and de Gelder (2008) [righart2008rapid] extend these experiments to understand when the context is encoded when processing emotional information by using event-related potentials (ERPs). ERPs are a tool in the neuroscience field that studies the brain's electrical activity for specific stimuli. Two ERPs are especially relevant in this scenario: the N170, which is a component related to face encoding and happens ~170 ms after the stimuli, and the P1, which is also related to facial processing and happens at around 100 ms after the stimuli. Therefore, how do these two components are affected by emotional contexts? The study shows that different amplitude levels for these ERPs were recorded based on the added emotional context but also that different emotions have faster reaction times.
 
   
 
@@ -37,26 +37,30 @@ We propose two experiments that are based on these three findings: in the first 
 
 #### Experiment 1 - Image-based context processing
 
-> The results of this experiment are currently under consideration for publication at ESWA. The preprint is available here: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4255748
+> The results of this experiment are currently under consideration for publication at ESWA. The preprint is available here: [https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4255748](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4255748)
 
 We design our context encoding stream so that we can automatically select important regions of the background, inspired by how humans encode context. Therefore, we occlude the facial region in the input images. In this experiment, we decided to go with simple convolutional blocks: convolutional layers with 3x3 kernels reducing spatial size and increasing the channel dimensions from 3 → 32 → 64 → 128 and → 256. Then, at the last layer, we have several learned representations of data, and we need to guide the model to what is actually important. For this, we use two strategies:
 
-We employ a self-calibrated convolution layer [liu2020improving], a convolutional layer that allows self-calibrating properties by building long-range spatial and inter-channel dependencies. In other words, this layer allows triggers that will improve the representations generated during the forward step.
+We employ a self-calibrated convolution layer **[liu2020improving]**, a convolutional layer that allows self-calibrating properties by building long-range spatial and inter-channel dependencies. In other words, this layer allows triggers that will improve the representations generated during the forward step.
 
 After the self-calibrated refinement, we proceed to employ an attention block that will boost the learnt features from this stream. It is important to notice that although self-calibration shares properties with attention mechanisms, they differ in how they were implemented in this work: self-calibration works within the layer, while attention blocks are applied between layers and modify the relationships of its input.
 
   
 
-Finally, we fuse the contextual information with other nonverbal cues to predict emotion. This architecture is simple by design to allow low inference time.
+Finally, we fuse the contextual information with other nonverbal cues to predict emotion. This architecture is simple by design to allow low inference time. We show an overview of the architecture below:
 
   ![Simple overview of the model proposed in this experiment. For more details, please check the preprint mentioned above.](https://github.com/behavioralbytes/behavioralbytes.github.io/blob/main/_posts/arch.png?raw=true)
+*Overview of our proposed architecture for this experiment. Consider the face and body encoding streams as black boxes in this case.*
 
-On the CAER-S dataset [lee2019context], which is a dataset for emotion recognition on images with contextual information available, we achieve 85.58% accuracy using only this contextual stream (without any other nonverbal cue), increasing to 89.76% in accuracy when combining face and body language information, ranking us in the second place in this benchmark (by 0.12%), with a much simpler architecture than the SOTA method, which combines facial information with context through execution in a global attention format. We can, however, perform inferences 9 times faster than this method.
+On the CAER-S dataset **[lee2019context]**, which is a dataset for emotion recognition on images with contextual information available, we achieve 85.58% accuracy using only this contextual stream (without any other nonverbal cue), increasing to 89.76% in accuracy when combining face and body language information, ranking us in the second place in this benchmark (by 0.12%), with a much simpler architecture than the SOTA method, which combines facial information with context through execution in a global attention format. We can, however, perform inferences 9 times faster than this method.
 
-  
+We also performed a qualitative analysis using Grad-CAM to check how our model was learning to extract contextual representations from images. We visualize the attention maps, and as we show below in some examples, we have a good generalization of the background information. More examples are available within the preprint.
+
+![Grad-CAM visualization of context encoding](https://github.com/behavioralbytes/behavioralbytes.github.io/blob/main/_posts/gradcam_context.png?raw=true)
+  *Visualization of the attention maps. This is an example for "Fear"; the model is pointing to the region of the image that shows the way that the child is being held, as if they are afraid or something in a fight or flight situation.*
 
 #### Experiment 2 - Description-based context processing
-> The results of this experiment was presented in the LatinX in AI Workshop @ CVPR 2023. The paper is available here: https://openaccess.thecvf.com/content/CVPR2023W/LatinX/html/de_Lima_Costa_High-Level_Context_Representation_for_Emotion_Recognition_in_Images_CVPRW_2023_paper.html
+> The results of this experiment was presented in the LatinX in AI Workshop @ CVPR 2023. The paper is available here: [https://openaccess.thecvf.com/content/CVPR2023W/LatinX/html/de_Lima_Costa_High-Level_Context_Representation_for_Emotion_Recognition_in_Images_CVPRW_2023_paper.html](https://openaccess.thecvf.com/content/CVPR2023W/LatinX/html/de_Lima_Costa_High-Level_Context_Representation_for_Emotion_Recognition_in_Images_CVPRW_2023_paper.html)
 
   
 
